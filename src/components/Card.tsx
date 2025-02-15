@@ -47,7 +47,14 @@ const Card = (props: CardProps) => {
         </Details>
       </Content>
       {isHovered && (
-        <PlusButton onClick={() => setIsModalOpen(true)}>+</PlusButton>
+        <PlusButton
+          onClick={(e) => {
+            e.stopPropagation();
+            setIsModalOpen(true);
+          }}
+        >
+          +
+        </PlusButton>
       )}
       {isModalOpen && (
         <DetailModal
