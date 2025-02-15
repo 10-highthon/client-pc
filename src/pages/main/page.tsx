@@ -1,12 +1,19 @@
 import styled from "styled-components";
 import Card from "../../components/Card";
+import { useState } from "react";
+import QRModal from "../../components/QRModal";
 
 const Main = () => {
+  const [isShowQR, setIsShowQR] = useState(false);
+
   return (
     <Container>
       <Header>
         <div />
         <Buttons>
+          <Button onClick={() => setIsShowQR(true)}>
+            <img src="/public/qr.svg" />
+          </Button>
           <Button>
             <img src="/public/add.svg" />
           </Button>
@@ -79,6 +86,7 @@ const Main = () => {
           defaultThumbnailImageUrl="https://file.suk.kr/avatar.png"
         />
       </Body>
+      {isShowQR && <QRModal onClose={() => setIsShowQR(false)} />}
     </Container>
   );
 };
