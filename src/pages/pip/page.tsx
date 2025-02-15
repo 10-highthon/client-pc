@@ -102,6 +102,7 @@ const Pip = () => {
 
     docQuery("#draggable")?.addEventListener("mousedown", () => {
       const moveHandler = (e: MouseEvent) => {
+        console.log(e.movementX, e.movementY);
         window.ipcRenderer.send("movePIP", {
           channelId,
           x: e.movementX,
