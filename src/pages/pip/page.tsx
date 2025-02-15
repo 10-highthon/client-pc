@@ -36,24 +36,6 @@ const Pip = () => {
     });
   };
 
-  useEffect(() => {
-    document.getElementById("draggable")?.addEventListener("mousedown", () => {
-      const moveHandler = (e: MouseEvent) => {
-        window.ipcRenderer.send("movePIP", {
-          channelId,
-          x: e.movementX,
-          y: e.movementY,
-        });
-      };
-      const upHandler = () => {
-        window.removeEventListener("mousemove", moveHandler);
-        window.removeEventListener("mouseup", upHandler);
-      };
-      window.addEventListener("mousemove", moveHandler);
-      window.addEventListener("mouseup", upHandler);
-    });
-  }, []);
-
   async function test2() {
     const hls = new Hls();
     hls.loadSource(videoURL.replace(/\\/g, "/"));
@@ -117,6 +99,22 @@ const Pip = () => {
     });
 
     panelRef.current!.appendChild(video);
+
+    docQuery("#draggable")?.addEventListener("mousedown", () => {
+      const moveHandler = (e: MouseEvent) => {
+        window.ipcRenderer.send("movePIP", {
+          channelId,
+          x: e.movementX,
+          y: e.movementY,
+        });
+      };
+      const upHandler = () => {
+        window.removeEventListener("mousemove", moveHandler);
+        window.removeEventListener("mouseup", upHandler);
+      };
+      window.addEventListener("mousemove", moveHandler);
+      window.addEventListener("mouseup", upHandler);
+    });
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }
@@ -322,7 +320,6 @@ const Pip = () => {
     );
 
     function panelMouseEnter() {
-      console.log("panelMouseEnter");
       window.ipcRenderer.send("fixedPIP", true, { forward: true });
     }
     function panelMouseLeave() {
@@ -353,7 +350,7 @@ const Pip = () => {
   return (
     <Container>
       <div className="fixed">
-        <img src="/public/pin_fixed.svg" />
+        <img src="/pin_fixed.svg" />
       </div>
       <div id="panel" className="panel" ref={panelRef}>
         <div className="draggable" id="draggable" ref={draggableRef}></div>
@@ -365,10 +362,10 @@ const Pip = () => {
           </div>
           <div className="header_button_container">
             <div className="header_button not_fixed">
-              <img src="/public/pin.svg" />
+              <img src="/pin.svg" />
             </div>
             <div className="header_button close_pip" onClick={windowClose}>
-              <img src="/public/close_pip.svg" id="close" />
+              <img src="/close_pip.svg" id="close" />
             </div>
           </div>
         </div>
@@ -384,7 +381,7 @@ const Pip = () => {
                 </div>
               </div>
             </label>
-            <img src="/public/opacity.svg" />
+            <img src="/opacity.svg" />
           </div>
           <div className="control_item control_volume">
             <input
@@ -405,11 +402,11 @@ const Pip = () => {
                 </div>
               </div>
             </label>
-            <img src="/public/sound.svg" />
+            <img src="/sound.svg" />
           </div>
         </div>
         <div className="control_play">
-          <img src="/public/pause.svg" id="play" />
+          <img src="/pause.svg" id="play" />
         </div>
         <div className="controls_bottom">
           <div className="control_time">
@@ -451,7 +448,7 @@ const Pip = () => {
             className="control_chat"
             onClick={() => window.ipcRenderer.send("openChat", channelId)}
           >
-            <img src="/public/chat.svg" />
+            <img src="/chat.svg" />
           </div>
         </div>
       </div>

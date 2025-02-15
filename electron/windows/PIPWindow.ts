@@ -31,7 +31,6 @@ export class PIPWindow {
   }
 
   public static destroyInstance(id: string): void {
-    console.log(this.instance[id]);
     if (
       this.instance[id] &&
       this.instance[id].pip &&
