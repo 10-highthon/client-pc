@@ -31,11 +31,11 @@ const DetailModal = (props: DetailModalProps) => {
           <Buttons>
             {props.time && (
               <LiveButton>
-                {props.time}전부터 방송 중 <img src="/public/shortcut.svg" />
+                {props.time}부터 방송 중 <img src="/public/shortcut.svg" />
               </LiveButton>
             )}
             <RemoveButton onClick={props.onRemove}>
-              <img src="/public/remove.svg" />
+              <svg href="/public/remove.svg" />
             </RemoveButton>
           </Buttons>
         </Content>
@@ -58,6 +58,10 @@ const Container = styled.div`
   flex-direction: column;
 
   overflow: hidden;
+
+  p {
+    margin: 0;
+  }
 `;
 
 const Header = styled.div`
@@ -68,6 +72,7 @@ const Header = styled.div`
 
   img {
     object-fit: cover;
+    width: 100%;
     height: 100%;
   }
 `;
@@ -77,7 +82,7 @@ const Content = styled.div`
   width: 100%;
   padding: 20px;
   justify-content: space-between;
-  align-items: center;
+  align-items: start;
   border-bottom: 1px solid #686868;
 `;
 
@@ -123,6 +128,11 @@ const Buttons = styled.div`
   align-items: flex-start;
   gap: 4px;
   flex-shrink: 0;
+  height: 36px;
+
+  div {
+    height: 100%;
+  }
 `;
 
 const LiveButton = styled.div`
@@ -133,9 +143,12 @@ const LiveButton = styled.div`
   border-radius: 6px;
   background: rgba(114, 115, 123, 0.4);
   color: #00ffa3;
+
+  font-weight: 600;
 `;
 
 const RemoveButton = styled.div`
+  width: 35px;
   display: flex;
   padding: 6px 9px;
   align-items: center;
@@ -143,4 +156,9 @@ const RemoveButton = styled.div`
   border-radius: 6px;
   background: rgba(114, 115, 123, 0.4);
   color: #ff0000;
+
+  svg {
+    width: 100%;
+    height: 100%;
+  }
 `;

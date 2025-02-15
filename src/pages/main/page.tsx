@@ -110,12 +110,6 @@ const Container = styled.div`
   width: 100dvw;
   height: 100dvh;
   background-color: #000000;
-
-  * {
-    box-sizing: border-box;
-    scrollbar-width: none;
-    -ms-overflow-style: none;
-  }
 `;
 
 const Header = styled.div`
