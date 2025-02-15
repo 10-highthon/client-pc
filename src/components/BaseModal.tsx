@@ -8,7 +8,9 @@ interface BaseModalProps extends PropsWithChildren {
 
 const BaseModal = ({ onClose, children }: BaseModalProps) => {
   return createPortal(
-    <Container onClick={onClose}>{children}</Container>,
+    <Container onClick={(e) => e.target === e.currentTarget && onClose()}>
+      {children}
+    </Container>,
     document.body
   );
 };
