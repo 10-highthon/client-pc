@@ -34,14 +34,13 @@ ipcMain.on("getThumbnail", async (evt, channelId) => {
 });
 
 ipcMain.on("getStream", async (evt, channelId) => {
-  const streamWin = PIPWindow.getInstance(channelId);
-
-  if (streamWin || store.get("autoStart")[channelId].status) {
+  if (store.get("autoStart")[channelId].status) {
+    const streamWin = PIPWindow.getInstance(channelId);
     streamWin.focus();
     return;
   }
 
-  const isStream = (await getFavorites(channelId)).openLive;
+  // const isStream = (await getFavorites(channelId)).openLive;
   // if (isStream) {
   //   store.set(`auto_start.${channelId}.status`, true);
   //   lib.getLiveById(channelId, store.get("chzzk_session") ?? "").then((res) => {

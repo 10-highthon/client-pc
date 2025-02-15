@@ -6,6 +6,8 @@ import Store from "electron-store";
 import { StoreOptions } from "./options/options";
 import { BackgroundWindow } from "./windows/BackgroundWindow";
 import axios from "axios";
+import { getFavoritesAll, getLiveDetails } from "./libs/favorite";
+import { createUser } from "./libs/user";
 
 const store = new Store<StoreOptions>();
 
@@ -47,25 +49,11 @@ app.whenReady().then(async () => {
   store.set("app_start", false);
 
   if (!store.get("user")) {
-    const {
-      data: { id },
-    } = await axios.post<{ id: string }>(`${API_URL}/user/new`);
+    const { id } = await createUser();
     store.set("user", id);
   }
 
-  const {
-    data: { channels },
-  } = await axios.get<{
-    channels: {
-      channel: {
-        channelId: string;
-      };
-    }[];
-  }>(`${API_URL}/favorite`, {
-    params: {
-      user: store.get("user"),
-    },
-  });
+  const { channels } = await getLiveDetails();
 
   const autoStart: StoreOptions["autoStart"] = {};
   for (const { channel } of channels) {
