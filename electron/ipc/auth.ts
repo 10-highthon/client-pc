@@ -22,8 +22,8 @@ ipcMain.on("logout", () => {
 ipcMain.on("getUserProfile", async (evt) => {
   const user = await getMyData(store.get("chzzkSession"));
   if (!user) store.set("chzzkSession", "");
-  evt.returnValue = {
+  evt.reply("getUserProfile", {
     name: user?.nickname,
     profile: user?.profileImageUrl,
-  };
+  });
 });

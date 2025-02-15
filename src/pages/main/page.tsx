@@ -5,16 +5,21 @@ import QRModal from "../../components/QRModal";
 
 const Main = () => {
   const [isShowQR, setIsShowQR] = useState(false);
+  const [getUserInfo, setGetUserInfo] = useState<any>();
   const [info, setInfo] = useState([]);
 
   async function test() {
     return await window.ipcRenderer.sendSync("getChannelInfo");
   }
 
+  async function test2() {
+    return await window.ipcRenderer.sendSync("getUserProfile");
+  }
+
   useEffect(() => {
     test().then(setInfo);
+    test2().then((res) => setGetUserInfo(res[0]));
   }, []);
-
   return (
     <Container>
       <Header>
@@ -40,9 +45,31 @@ const Main = () => {
               <path d="M1 0L1 16" stroke="#37373D" />
             </svg>
           </Divider>
-          <Button>
-            <Profile />
-          </Button>
+
+          <div
+            style={{
+              display: "flex",
+              gap: "8px",
+              alignItems: "center",
+            }}
+          >
+            {getUserInfo && <p>{getUserInfo.name}</p>}
+            <Button
+              onClick={() => {
+                window.ipcRenderer.send("login");
+              }}
+            >
+              <Profile
+                style={
+                  getUserInfo
+                    ? {
+                        backgroundImage: `url(${getUserInfo.profile})`,
+                      }
+                    : {}
+                }
+              />
+            </Button>
+          </div>
         </Buttons>
       </Header>
       <Body>
@@ -104,6 +131,7 @@ const Buttons = styled.div`
   display: flex;
   align-items: center;
   gap: 8px;
+  -webkit-app-region: no-drag;
 `;
 
 const Button = styled.div`
