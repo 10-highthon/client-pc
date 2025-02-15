@@ -13,7 +13,7 @@ ipcMain.on("getChannelInfo", async (event: IpcMainEvent) => {
     const stream = await getLiveDetail(channel.channelId);
 
     return {
-      id: channel.channelId,
+      channelId: channel.channelId,
       displayName: channel.channelName,
       profile: channel.channelImageUrl,
       follows: channel.followerCount,
