@@ -14,14 +14,14 @@ export class PIPWindow {
 
   private constructor() {}
 
-  public static getInstance(id: string, url: string): BrowserWindow {
+  public static getInstance(id: string, url?: string): BrowserWindow {
     if (!this.instance?.[id]) {
       this.createWindow(id, url);
     }
     return this.instance![id].pip;
   }
 
-  private static createWindow(id: string, url: string): void {
+  private static createWindow(id: string, url?: string): void {
     this.instance[id].pip = new BrowserWindow({
       width: store.get("pipOptions")[id].size.width,
       height: store.get("pipOptions")[id].size.height,
