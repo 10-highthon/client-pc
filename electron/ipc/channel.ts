@@ -20,7 +20,7 @@ ipcMain.on("getChannelInfo", async (event: IpcMainEvent) => {
       startDate: stream?.openDate,
       lastStreamDate: stream?.closeDate,
       isStream: channel.openLive,
-      thumbnail: stream.liveImageUrl,
+      thumbnail: stream.defaultThumbnailImageUrl,
     };
   });
 
@@ -29,7 +29,7 @@ ipcMain.on("getChannelInfo", async (event: IpcMainEvent) => {
 
 ipcMain.on("getThumbnail", async (evt, channelId) => {
   const stream = await getLiveDetail(channelId);
-  const thumbnail = stream?.liveImageUrl;
+  const thumbnail = stream?.defaultThumbnailImageUrl;
   evt.returnValue = thumbnail;
 });
 
