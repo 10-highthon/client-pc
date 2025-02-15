@@ -42,4 +42,6 @@ export interface StoreOptions {
       opacity: number;
     };
   };
+
+  user: string;
 }

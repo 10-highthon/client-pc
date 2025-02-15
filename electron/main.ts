@@ -5,9 +5,11 @@ import { MainWindow } from "./windows/MainWindow";
 import Store from "electron-store";
 import { StoreOptions } from "./options/options";
 import { BackgroundWindow } from "./windows/BackgroundWindow";
+import axios from "axios";
 
-const lock = app.requestSingleInstanceLock();
 const store = new Store<StoreOptions>();
+
+const API_URL = "http://192.168.0.234:3000";
 
 // const require = createRequire(import.meta.url)
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -43,7 +45,7 @@ app.on("activate", () => {
   BackgroundWindow.getInstance();
 });
 
-app.whenReady().then(() => {
+app.whenReady().then(async () => {
   store.set("app_start", false);
 
   if (!store.get("autoStart")) {
@@ -52,6 +54,13 @@ app.whenReady().then(() => {
 
   if (!store.get("pipOptions")) {
     store.set("pip_options", {});
+  }
+
+  if (!store.get("user")) {
+    const {
+      data: { id },
+    } = await axios.post<{ id: string }>(`${API_URL}/user/new`);
+    store.set("user", id);
   }
 
   MainWindow.getInstance();
