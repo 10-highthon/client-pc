@@ -33,21 +33,18 @@ ipcMain.on("getThumbnail", async (evt, channelId) => {
   evt.returnValue = thumbnail;
 });
 
-ipcMain.on("getStream", async (evt, channelId) => {
+ipcMain.on("getStream", async (_, channelId) => {
   if (store.get("autoStart")[channelId].status) {
     const streamWin = PIPWindow.getInstance(channelId);
     streamWin.focus();
     return;
   }
 
-  // const isStream = (await getFavorites(channelId)).openLive;
-  // if (isStream) {
-  //   store.set(`auto_start.${channelId}.status`, true);
-  //   lib.getLiveById(channelId, store.get("chzzk_session") ?? "").then((res) => {
-  //     if (res.content.livePlaybackJson) {
-  //       const hls = JSON.parse(res.content.livePlaybackJson).media[0].path;
-  //       createPIPWin(hls, channelId);
-  //     }
-  //   });
-  // }
+  const isStream = (await getFavorites(channelId)).openLive;
+  if (isStream) {
+    store.set(`auto_start.${channelId}.status`, true);
+    await getLiveDetail(channelId).then((res) => {
+      if (res.videoUrl) PIPWindow.getInstance(channelId, res.videoUrl);
+    });
+  }
 });
