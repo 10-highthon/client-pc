@@ -1,10 +1,19 @@
 import styled from "styled-components";
 import Card from "../../components/Card";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import QRModal from "../../components/QRModal";
 
 const Main = () => {
   const [isShowQR, setIsShowQR] = useState(false);
+  const [info, setInfo] = useState([]);
+
+  async function test() {
+    return await window.ipcRenderer.sendSync("getChannelInfo");
+  }
+
+  useEffect(() => {
+    test().then(setInfo);
+  }, []);
 
   return (
     <Container>
@@ -37,54 +46,31 @@ const Main = () => {
         </Buttons>
       </Header>
       <Body>
-        <Card
-          name={"홍길동"}
-          $status={"OPEN"}
-          follows={10000}
-          time={"15시간 전"}
-          imageUrl={"https://file.suk.kr/avatar.png"}
-          defaultThumbnailImageUrl="https://file.suk.kr/avatar.png"
-        />
-        <Card
-          name={"홍길동"}
-          $status={"OPEN"}
-          follows={10000}
-          time={"15시간 전"}
-          imageUrl={"https://file.suk.kr/avatar.png"}
-          defaultThumbnailImageUrl="https://file.suk.kr/avatar.png"
-        />
-        <Card
-          name={"홍길동"}
-          $status={"OPEN"}
-          follows={10000}
-          time={"15시간 전"}
-          imageUrl={"https://file.suk.kr/avatar.png"}
-          defaultThumbnailImageUrl="https://file.suk.kr/avatar.png"
-        />
-        <Card
-          name={"홍길동"}
-          $status={"OPEN"}
-          follows={10000}
-          time={"15시간 전"}
-          imageUrl={"https://file.suk.kr/avatar.png"}
-          defaultThumbnailImageUrl="https://file.suk.kr/avatar.png"
-        />
-        <Card
-          name={"홍길동"}
-          $status={"OPEN"}
-          follows={10000}
-          time={"15시간 전"}
-          imageUrl={"https://file.suk.kr/avatar.png"}
-          defaultThumbnailImageUrl="https://file.suk.kr/avatar.png"
-        />
-        <Card
-          name={"홍길동"}
-          $status={"OPEN"}
-          follows={10000}
-          time={"15시간 전"}
-          imageUrl={"https://file.suk.kr/avatar.png"}
-          defaultThumbnailImageUrl="https://file.suk.kr/avatar.png"
-        />
+        {info
+          .flat()
+          .map(
+            (v: {
+              channelId: string;
+              displayName: string;
+              profile: string;
+              follows: number;
+              startDate: string;
+              lastStreamDate: string;
+              isStream: boolean;
+              thumbnail: string;
+            }) => (
+              <Card
+                key={v.channelId}
+                channelId={v.channelId}
+                name={v.displayName}
+                $status={v.isStream ? "OPEN" : "CLOSED"}
+                follows={v.follows}
+                time={"15시간 전"}
+                imageUrl={v.profile}
+                defaultThumbnailImageUrl={v.thumbnail}
+              />
+            )
+          )}
       </Body>
       {isShowQR && <QRModal onClose={() => setIsShowQR(false)} />}
     </Container>
@@ -94,7 +80,8 @@ const Main = () => {
 export default Main;
 
 const Container = styled.div`
-  width: 100%;
+  width: 100dvw;
+  height: 100dvh;
   background-color: #000000;
 
   * {
@@ -110,6 +97,7 @@ const Header = styled.div`
   justify-content: space-between;
   align-items: center;
   align-self: stretch;
+  -webkit-app-region: drag;
 `;
 
 const Buttons = styled.div`
@@ -145,12 +133,9 @@ const Profile = styled.div`
 `;
 
 const Body = styled.div`
-  display: flex;
-  width: 100%;
-  padding: 0px 16px 16px 16px;
-  justify-content: center;
-  align-items: flex-start;
-  align-content: flex-start;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+
   gap: 8px;
-  flex-wrap: wrap;
+  padding: 0px 16px 16px 16px;
 `;

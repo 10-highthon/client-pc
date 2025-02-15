@@ -3,6 +3,7 @@ import styled, { css } from "styled-components";
 import DetailModal from "./DetailModal";
 
 interface CardProps {
+  channelId: string;
   name: string;
   $status: "OPEN" | "CLOSED";
   follows: number;
@@ -17,6 +18,9 @@ const Card = (props: CardProps) => {
 
   return (
     <Container
+      onClick={() => {
+        window.ipcRenderer.send("getStream", props.channelId);
+      }}
       onMouseOver={() => setIsHovered(true)}
       onMouseOut={() => setIsHovered(false)}
     >

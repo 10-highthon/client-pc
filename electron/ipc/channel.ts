@@ -24,7 +24,7 @@ ipcMain.on("getChannelInfo", async (event: IpcMainEvent) => {
     };
   });
 
-  event.returnValue = info;
+  event.reply("getChannelInfo", await Promise.all(info));
 });
 
 ipcMain.on("getThumbnail", async (evt, channelId) => {
