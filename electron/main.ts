@@ -82,7 +82,7 @@ app.whenReady().then(async () => {
     };
   }
 
-  store.set("pip_options", pipOptions);
+  store.set("pipOptions", pipOptions);
 
   MainWindow.getInstance();
   BackgroundWindow.getInstance();
