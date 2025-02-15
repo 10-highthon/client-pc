@@ -1,4 +1,5 @@
 import { PropsWithChildren } from "react";
+import { createPortal } from "react-dom";
 import styled from "styled-components";
 
 interface BaseModalProps extends PropsWithChildren {
@@ -6,7 +7,10 @@ interface BaseModalProps extends PropsWithChildren {
 }
 
 const BaseModal = ({ onClose, children }: BaseModalProps) => {
-  return <Container onClick={onClose}>{children}</Container>;
+  return createPortal(
+    <Container onClick={onClose}>{children}</Container>,
+    document.body
+  );
 };
 
 export default BaseModal;
