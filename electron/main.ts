@@ -1,12 +1,11 @@
-import { app } from "electron";
+import { app, session } from "electron";
 import { fileURLToPath } from "node:url";
 import path from "node:path";
 import { MainWindow } from "./windows/MainWindow";
 import Store from "electron-store";
 import { StoreOptions } from "./options/options";
 import { BackgroundWindow } from "./windows/BackgroundWindow";
-import axios from "axios";
-import { getFavoritesAll, getLiveDetails } from "./libs/favorite";
+import { getLiveDetails } from "./libs/favorite";
 import { createUser } from "./libs/user";
 
 const store = new Store<StoreOptions>();
@@ -83,6 +82,29 @@ app.whenReady().then(async () => {
   }
 
   store.set("pipOptions", pipOptions);
+
+  if (!store.get("chzzkSession")) {
+    store.set("chzzkSession", "");
+  } else {
+    try {
+      store
+        .get("chzzkSession")
+        .split(";")
+        .forEach((e) => {
+          if (e === "") return;
+          const cookie = {
+            url: "https://chzzk.naver.com",
+            name: e.split("=")[0],
+            value: e.split("=")[1],
+            domain: ".naver.com",
+            secure: true,
+          };
+          session.defaultSession.cookies.set(cookie);
+        });
+    } catch {
+      store.set("chzzkSession", "");
+    }
+  }
 
   MainWindow.getInstance();
   BackgroundWindow.getInstance();

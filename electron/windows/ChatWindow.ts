@@ -8,6 +8,10 @@ export class ChatWindow {
 
   private constructor() {}
 
+  public static isAvailable(id: string): boolean {
+    return !!this.instance[id];
+  }
+
   public static getInstance(id: string): BrowserWindow | null {
     if (!this.instance?.[id]) {
       this.createWindow(id);

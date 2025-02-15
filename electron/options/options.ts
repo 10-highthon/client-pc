@@ -44,4 +44,5 @@ export interface StoreOptions {
   };
 
   user: string;
+  chzzkSession: string;
 }

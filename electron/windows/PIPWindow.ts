@@ -4,24 +4,46 @@ import { StoreOptions } from "../options/options";
 
 const store = new Store<StoreOptions>();
 
+interface PIPInstance {
+  [id: string]: {
+    pip: BrowserWindow | null;
+    points: BrowserWindow | null;
+  } | null;
+}
+
 export class PIPWindow {
-  private static instance: {
-    [id: string]: {
-      pip: BrowserWindow;
-      points: BrowserWindow;
-    };
-  } = {};
+  private static instance: PIPInstance = {};
 
   private constructor() {}
 
-  public static getInstance(id: string, url?: string): BrowserWindow {
+  public static getInstance(
+    id: string,
+    url?: string
+  ): PIPInstance[keyof PIPInstance] {
     if (!this.instance?.[id]) {
       this.createWindow(id, url);
     }
-    return this.instance![id].pip;
+    return this.instance![id];
+  }
+
+  public static destroyInstance(id: string): void {
+    if (
+      this.instance[id] &&
+      this.instance[id].pip &&
+      this.instance[id].points
+    ) {
+      this.instance[id].pip.close();
+      this.instance[id].points.close();
+      this.instance[id] = null;
+    }
   }
 
   private static createWindow(id: string, url?: string): void {
+    this.instance[id] = {
+      pip: null,
+      points: null,
+    };
+
     this.instance[id].pip = new BrowserWindow({
       width: store.get("pipOptions")[id].size.width,
       height: store.get("pipOptions")[id].size.height,
@@ -53,6 +75,10 @@ export class PIPWindow {
   }
 
   private static createLiveWindow(id: string): void {
+    if (!this.instance[id]) return;
+    if (!this.instance[id]?.pip) return;
+    if (!this.instance[id]?.points) return;
+
     this.instance[id].points = new BrowserWindow({
       show: false,
       width: 1280,
@@ -65,6 +91,7 @@ export class PIPWindow {
     });
     this.instance[id].points.webContents.setAudioMuted(true);
     this.instance[id].points.webContents.on("did-finish-load", () => {
+      if (!this.instance[id]?.points) return;
       this.instance[id].points.webContents.executeJavaScript(
         `setTimeout(() => {
         document.querySelector("#layout-body > section > div > main > div.live_information_contents__ms0SV > div.live_information_player__uFFcH > div.live_information_video_dimmed__Hrmtd > div > div:nth-child(4) > button").click();

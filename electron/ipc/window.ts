@@ -2,18 +2,20 @@ import { ipcMain } from "electron";
 import Store from "electron-store";
 import { PIPWindow } from "../windows/PIPWindow";
 import { StoreOptions } from "../options/options";
+import { ChatWindow } from "../windows/ChatWindow";
+import { MainWindow } from "../windows/MainWindow";
 
 const store = new Store<StoreOptions>();
 
 ipcMain.on("movePIP", (evt, arg) => {
   const streamWin = PIPWindow.getInstance(arg.channelId);
 
-  const currentPostion = streamWin.getPosition();
+  const currentPostion = streamWin.pip.getPosition();
   const newPosition = {
     x: currentPostion[0] + arg.x,
     y: currentPostion[1] + arg.y,
   };
-  streamWin.setBounds({
+  streamWin.pip.setBounds({
     x: newPosition.x,
     y: newPosition.y,
     width: store.get("pipOptions")[arg.channelId].size.width,
@@ -29,5 +31,28 @@ ipcMain.on("resizePIP", (evt, arg) => {
 
 ipcMain.on("changeOpacity", (evt, channelId) => {
   const streamWin = PIPWindow.getInstance(channelId);
-  streamWin.setOpacity(store.get(`pipOptions.${channelId}.opacity`));
+  streamWin!.pip!.setOpacity(store.get(`pipOptions.${channelId}.opacity`));
+});
+
+// ipcMain.on("fixedPIP", (evt, fixed, option) => {
+//   const pip = BrowserWindow.fromWebContents(evt.sender);
+//   pip.resizable = !fixed;
+//   pip.setIgnoreMouseEvents(fixed, option);
+// });
+
+ipcMain.on("closePIP", (evt, channelId) => {
+  PIPWindow.destroyInstance(channelId);
+
+  const chatWin = ChatWindow.isAvailable(channelId);
+  if (chatWin) {
+    ChatWindow.destroyInstance(channelId);
+  }
+
+  store.set(`autoStart.${channelId}.status`, false);
+  store.set(`autoStart.${channelId}.closed`, true);
+});
+
+ipcMain.on("minimizeMainWin", () => {
+  const mainWin = MainWindow.getInstance();
+  mainWin.minimize();
 });
