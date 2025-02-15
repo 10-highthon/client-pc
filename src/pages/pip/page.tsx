@@ -1,7 +1,4 @@
 import styled from "styled-components";
-import { ipcRenderer } from "electron";
-import Store from "electron-store";
-import { StoreOptions } from "../../../electron/options/options";
 import { useSearchParams } from "react-router";
 import { useEffect, useRef } from "react";
 import Hls from "hls.js";
@@ -11,7 +8,7 @@ const docQuery = (element: string): HTMLElement => {
 };
 
 const Pip = () => {
-  const store = new Store<StoreOptions>();
+  const draggableRef = useRef<HTMLDivElement>(null);
 
   const video = document.createElement("video");
   const panelRef = useRef<HTMLDivElement>(null);
@@ -21,7 +18,7 @@ const Pip = () => {
   const channelId = searchParams.get("channelId") ?? "";
   const videoURL = searchParams.get("url") ?? "";
 
-  const windowClose = () => ipcRenderer.send("closePIP", channelId);
+  const windowClose = () => window.ipcRenderer.send("closePIP", channelId);
 
   window.onresize = () => {
     const location = {
@@ -29,8 +26,8 @@ const Pip = () => {
       y: window.screenTop,
     };
 
-    ipcRenderer.send("resizePIP", {
-      name: channelId,
+    window.ipcRenderer.send("resizePIP", {
+      channelId,
       size: {
         width: window.innerWidth,
         height: window.innerHeight,
@@ -40,13 +37,33 @@ const Pip = () => {
   };
 
   useEffect(() => {
+    document.getElementById("draggable")?.addEventListener("mousedown", () => {
+      const moveHandler = (e: MouseEvent) => {
+        window.ipcRenderer.send("movePIP", {
+          channelId,
+          x: e.movementX,
+          y: e.movementY,
+        });
+      };
+      const upHandler = () => {
+        window.removeEventListener("mousemove", moveHandler);
+        window.removeEventListener("mouseup", upHandler);
+      };
+      window.addEventListener("mousemove", moveHandler);
+      window.addEventListener("mouseup", upHandler);
+    });
+  }, []);
+
+  async function test2() {
     const hls = new Hls();
     hls.loadSource(videoURL.replace(/\\/g, "/"));
     hls.attachMedia(video);
     hls.on(Hls.Events.MANIFEST_PARSED, () => {
       video.play();
     });
-    video.volume = parseFloat(store.get(`pipOptions.${channelId}.volume`));
+    video.volume = parseFloat(
+      await window.store.get(`pipOptions.${channelId}.volume`)
+    );
     video.addEventListener("loadedmetadata", () => {
       video.currentTime = video.duration;
     });
@@ -102,15 +119,21 @@ const Pip = () => {
     panelRef.current!.appendChild(video);
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }
 
   useEffect(() => {
+    test2();
+  }, []);
+
+  async function test() {
     let soundTemp: number = parseFloat(
-      store.get(`pipOptions.${channelId}.volume`)
+      (await window.store.get(`pipOptions.${channelId}.volume`)) ?? 1
     );
 
     docQuery(".control_volume .control_progress").style.height =
-      parseFloat(store.get(`pipOptions.${channelId}.volume`)) * 100 + "%";
+      parseFloat(await window.store.get(`pipOptions.${channelId}.volume`)) *
+        100 +
+      "%";
 
     function volumeControl(e: MouseEvent) {
       const barTop = docQuery(
@@ -122,18 +145,18 @@ const Pip = () => {
       if (e.clientY - barTop > 0 && e.clientY - barTop < barBotom) {
         const volume = 1 - (e.clientY - barTop) / barBotom;
         video.volume = volume;
-        store.set(`pip_options.${channelId}.volume`, volume);
+        window.store.set(`pipOptions.${channelId}.volume`, volume);
         docQuery(".control_volume .control_progress").style.height =
           volume * 100 + "%";
         (docQuery(".control_volume img") as HTMLImageElement).src =
           "/public/sound.svg";
       } else if (e.clientY - barTop <= 0) {
         video.volume = 1;
-        store.set(`pip_options.${channelId}.volume`, 1);
+        window.store.set(`pipOptions.${channelId}.volume`, 1);
         docQuery(".control_volume .control_progress").style.height = "100%";
       } else if (e.clientY - barTop >= barBotom) {
         video.volume = 0;
-        store.set(`pip_options.${channelId}.volume`, 0);
+        window.store.set(`pipOptions.${channelId}.volume`, 0);
         docQuery(".control_volume .control_progress").style.height = "0%";
         (docQuery(".control_volume img") as HTMLImageElement).src =
           "/public/sound_off.svg";
@@ -172,13 +195,13 @@ const Pip = () => {
     docQuery(".control_volume img").addEventListener("click", () => {
       if (video.volume) {
         video.volume = 0;
-        store.set(`pip_options.${channelId}.volume`, 0);
+        window.store.set(`pipOptions.${channelId}.volume`, 0);
         docQuery(".control_volume .control_progress").style.height = "0%";
         (docQuery(".control_volume img") as HTMLImageElement).src =
           "/assets/sound_off.svg";
       } else {
         video.volume = soundTemp;
-        store.set(`pip_options.${channelId}.volume`, soundTemp);
+        window.store.set(`pipOptions.${channelId}.volume`, soundTemp);
         docQuery(".control_volume .control_progress").style.height =
           soundTemp * 100 + "%";
         (docQuery(".control_volume img") as HTMLImageElement).src =
@@ -187,9 +210,144 @@ const Pip = () => {
     });
 
     docQuery(".control_opacity .control_progress").style.height =
-      (store.get(`pip_options.${channelId}.opacity`) as number) * 100 + "%";
+      ((await window.store.get(`pipOptions.${channelId}.opacity`)) as number) *
+        100 +
+      "%";
+
+    async function opacityControl(e) {
+      const barTop = docQuery(
+        ".control_opacity .control_background"
+      ).getBoundingClientRect().top;
+      const barBotom =
+        docQuery(".control_opacity .control_background").getBoundingClientRect()
+          .bottom - barTop;
+
+      let opacity = 0;
+      if (e.clientY - barTop > 0 && e.clientY - barTop < barBotom) {
+        if (1 - (e.clientY - barTop) / barBotom < 0.1) {
+          window.store.set(`pip_options.${channelId}.opacity`, 0.1);
+          opacity = 0.1;
+        } else {
+          window.store.set(
+            `pip_options.${channelId}.opacity`,
+            1 - (e.clientY - barTop) / barBotom
+          );
+          opacity = 1 - (e.clientY - barTop) / barBotom;
+        }
+        docQuery(".control_opacity .control_progress").style.height =
+          (1 - (e.clientY - barTop) / barBotom) * 100 + "%";
+      } else if (e.clientY - barTop <= 0) {
+        window.store.set(`pip_options.${channelId}.opacity`, 1);
+        opacity = 1;
+        docQuery(".control_opacity .control_progress").style.height = "100%";
+      } else if (e.clientY - barTop >= barBotom) {
+        window.store.set(`pip_options.${channelId}.opacity`, 0.1);
+        opacity = 0.1;
+        docQuery(".control_opacity .control_progress").style.height = "0%";
+      }
+      window.ipcRenderer.send("changeOpacity", channelId, opacity);
+    }
+
+    docQuery(".control_opacity .control_background").addEventListener(
+      "mousedown",
+      opacityControl
+    );
+
+    docQuery(".control_opacity .control_thumb").addEventListener(
+      "mousedown",
+      (e) => {
+        const moveHandler = (e) => {
+          docQuery(".control_opacity .control_background").removeEventListener(
+            "mousedown",
+            opacityControl
+          );
+          opacityControl(e);
+        };
+        const upHandler = () => {
+          window.removeEventListener("mousemove", moveHandler);
+          window.removeEventListener("mouseup", upHandler);
+          docQuery(".control_opacity .control_background").addEventListener(
+            "mousedown",
+            opacityControl
+          );
+        };
+        window.addEventListener("mousemove", moveHandler);
+        window.addEventListener("mouseup", upHandler);
+      }
+    );
+
+    docQuery(".control_time .control_background").addEventListener(
+      "click",
+      (e) => {
+        const barLeft = docQuery(
+          ".control_time .control_background"
+        ).getBoundingClientRect().left;
+        const barRight =
+          docQuery(".control_time .control_background").getBoundingClientRect()
+            .right - barLeft;
+        if (e.clientX - barLeft > 0 && e.clientX - barLeft < barRight) {
+          video.currentTime =
+            video.duration * ((e.clientX - barLeft) / barRight);
+          docQuery(".control_time .control_progress").style.width =
+            (video.currentTime / video.duration) * 100 + "%";
+        }
+      }
+    );
+
+    docQuery(".control_time .control_thumb").addEventListener(
+      "mousedown",
+      (e) => {
+        const moveHandler = (e) => {
+          const barLeft = docQuery(
+            ".control_time .control_background"
+          ).getBoundingClientRect().left;
+          const barRight =
+            docQuery(
+              ".control_time .control_background"
+            ).getBoundingClientRect().right - barLeft;
+          if (e.clientX - barLeft > 0 && e.clientX - barLeft < barRight) {
+            video.currentTime =
+              video.duration * ((e.clientX - barLeft) / barRight);
+            docQuery(".control_time .control_progress").style.width =
+              (video.currentTime / video.duration) * 100 + "%";
+          }
+        };
+        const upHandler = () => {
+          window.removeEventListener("mousemove", moveHandler);
+          window.removeEventListener("mouseup", upHandler);
+        };
+        window.addEventListener("mousemove", moveHandler);
+        window.addEventListener("mouseup", upHandler);
+      }
+    );
+
+    function panelMouseEnter() {
+      console.log("panelMouseEnter");
+      window.ipcRenderer.send("fixedPIP", true, { forward: true });
+    }
+    function panelMouseLeave() {
+      window.ipcRenderer.send("fixedPIP", false);
+    }
+
+    docQuery(".not_fixed").addEventListener("click", () => {
+      docQuery(".panel").classList.add("panel_fixed");
+      docQuery(".fixed").style.display = "flex";
+      docQuery(".panel").addEventListener("mouseenter", panelMouseEnter);
+      docQuery(".panel").addEventListener("mouseleave", panelMouseLeave);
+    });
+
+    docQuery(".fixed").addEventListener("click", () => {
+      docQuery(".panel").classList.remove("panel_fixed");
+      docQuery(".fixed").style.display = "none";
+      docQuery(".panel").removeEventListener("mouseenter", panelMouseEnter);
+      docQuery(".panel").removeEventListener("mouseleave", panelMouseLeave);
+    });
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
+  }
+
+  useEffect(() => {
+    test();
   }, []);
 
   return (
@@ -198,32 +356,19 @@ const Pip = () => {
         <img src="/public/pin_fixed.svg" />
       </div>
       <div id="panel" className="panel" ref={panelRef}>
-        <div
-          className="draggable"
-          id="draggable"
-          onMouseMove={(e) =>
-            ipcRenderer.send("movePIP", {
-              name: channelId,
-              x: e.movementX,
-              y: e.movementY,
-            })
-          }
-        ></div>
+        <div className="draggable" id="draggable" ref={draggableRef}></div>
         <div className="header">
           <div className="real_time">
             <span></span>
+
             <p>실시간</p>
           </div>
           <div className="header_button_container">
             <div className="header_button not_fixed">
               <img src="/public/pin.svg" />
             </div>
-            <div className="header_button close_pip">
-              <img
-                onClick={windowClose}
-                src="/public/close_pip.svg"
-                id="close"
-              />
+            <div className="header_button close_pip" onClick={windowClose}>
+              <img src="/public/close_pip.svg" id="close" />
             </div>
           </div>
         </div>
@@ -304,7 +449,7 @@ const Pip = () => {
           </div>
           <div
             className="control_chat"
-            onClick={() => ipcRenderer.send("openChat", channelId, "stream")}
+            onClick={() => window.ipcRenderer.send("openChat", channelId)}
           >
             <img src="/public/chat.svg" />
           </div>

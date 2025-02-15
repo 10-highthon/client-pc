@@ -36,7 +36,7 @@ ipcMain.on("getThumbnail", async (evt, channelId) => {
 ipcMain.on("getStream", async (_, channelId) => {
   if (store.get("autoStart")[channelId].status) {
     const streamWin = PIPWindow.getInstance(channelId);
-    streamWin.pip.focus();
+    streamWin!.pip!.focus();
     return;
   }
 

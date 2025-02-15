@@ -20,6 +20,11 @@ const Container = styled.div`
   height: 100dvh;
 
   overflow: hidden;
+
+  webview {
+    width: 100%;
+    height: 100%;
+  }
 `;
 
 const Nav = styled.div`

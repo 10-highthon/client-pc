@@ -22,6 +22,6 @@ export class BackgroundWindow {
       },
     });
 
-    this.instance.loadURL(getURL("background"));
+    this.instance.loadURL(getURL("/background"));
   }
 }

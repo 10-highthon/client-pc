@@ -1,7 +1,11 @@
 import { BrowserWindow } from "electron";
 import Store from "electron-store";
 import { StoreOptions } from "../options/options";
+import path from "node:path";
+import { fileURLToPath } from "node:url";
+import { getURL } from "../utils/url";
 
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const store = new Store<StoreOptions>();
 
 interface PIPInstance {
@@ -27,6 +31,7 @@ export class PIPWindow {
   }
 
   public static destroyInstance(id: string): void {
+    console.log(this.instance[id]);
     if (
       this.instance[id] &&
       this.instance[id].pip &&
@@ -50,10 +55,10 @@ export class PIPWindow {
       minWidth: 240,
       minHeight: 135,
       webPreferences: {
-        contextIsolation: false,
         nodeIntegration: true,
         webSecurity: false,
         partition: id,
+        preload: path.join(__dirname, "preload.mjs"),
       },
       frame: false,
       resizable: true,
@@ -65,9 +70,7 @@ export class PIPWindow {
     });
     this.instance[id].pip.setAspectRatio(16 / 9);
     this.instance[id].pip.setMenu(null);
-    this.instance[id].pip.loadURL(
-      `file://${__dirname}/index.html#pip?url=${url}&id=${id}`
-    );
+    this.instance[id].pip.loadURL(getURL(`/pip?url=${url}&channelId=${id}`));
     this.instance[id].pip.setAlwaysOnTop(true, "screen-saver");
     this.instance[id].pip.setVisibleOnAllWorkspaces(true);
 
@@ -77,12 +80,15 @@ export class PIPWindow {
   private static createLiveWindow(id: string): void {
     if (!this.instance[id]) return;
     if (!this.instance[id]?.pip) return;
-    if (!this.instance[id]?.points) return;
 
     this.instance[id].points = new BrowserWindow({
       show: false,
       width: 1280,
       height: 720,
+      webPreferences: {
+        nodeIntegration: true,
+        preload: path.join(__dirname, "preload.mjs"),
+      },
     });
 
     this.instance[id].points.loadURL("https://chzzk.naver.com/live/" + id, {

@@ -10,12 +10,12 @@ const store = new Store<StoreOptions>();
 ipcMain.on("movePIP", (evt, arg) => {
   const streamWin = PIPWindow.getInstance(arg.channelId);
 
-  const currentPostion = streamWin.pip.getPosition();
+  const currentPostion = streamWin!.pip!.getPosition();
   const newPosition = {
     x: currentPostion[0] + arg.x,
     y: currentPostion[1] + arg.y,
   };
-  streamWin.pip.setBounds({
+  streamWin!.pip!.setBounds({
     x: newPosition.x,
     y: newPosition.y,
     width: store.get("pipOptions")[arg.channelId].size.width,
@@ -29,9 +29,9 @@ ipcMain.on("resizePIP", (evt, arg) => {
   store.set(`pipOptions.${arg.channelId}.location`, arg.location);
 });
 
-ipcMain.on("changeOpacity", (evt, channelId) => {
+ipcMain.on("changeOpacity", (evt, channelId, opacity) => {
   const streamWin = PIPWindow.getInstance(channelId);
-  streamWin!.pip!.setOpacity(store.get(`pipOptions.${channelId}.opacity`));
+  streamWin!.pip!.setOpacity(opacity);
 });
 
 // ipcMain.on("fixedPIP", (evt, fixed, option) => {

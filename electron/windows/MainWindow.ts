@@ -1,6 +1,10 @@
 import { BrowserWindow } from "electron";
 
 import { getURL } from "../utils/url";
+import path from "node:path";
+import { fileURLToPath } from "node:url";
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 export class MainWindow {
   private static instance: BrowserWindow | null = null;
@@ -29,8 +33,7 @@ export class MainWindow {
       resizable: false,
       titleBarStyle: "hidden",
       webPreferences: {
-        contextIsolation: false,
-        nodeIntegration: true,
+        preload: path.join(__dirname, "preload.mjs"),
       },
     });
     this.instance.loadURL(getURL());

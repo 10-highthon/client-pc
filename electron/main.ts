@@ -7,6 +7,7 @@ import { StoreOptions } from "./options/options";
 import { BackgroundWindow } from "./windows/BackgroundWindow";
 import { getLiveDetails } from "./libs/favorite";
 import { createUser } from "./libs/user";
+import "./ipc";
 
 const store = new Store<StoreOptions>();
 
@@ -46,6 +47,7 @@ app.on("activate", () => {
 
 app.whenReady().then(async () => {
   store.set("app_start", false);
+  store.set("user", "fe2ebfc4-f6e5-49d4-bf6a-e5fe70051e08");
 
   if (!store.get("user")) {
     const { id } = await createUser();

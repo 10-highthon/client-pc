@@ -1,6 +1,7 @@
 import { BrowserWindow } from "electron";
 import Store from "electron-store";
 import { StoreOptions } from "../options/options";
+import { getURL } from "../utils/url";
 const store = new Store<StoreOptions>();
 
 export class ChatWindow {
@@ -42,5 +43,9 @@ export class ChatWindow {
       maximizable: false,
       skipTaskbar: true,
     });
+
+    this.instance[id].loadURL(
+      getURL(`/chat?channelId=${id}&session=${store.get("chzzkSession")}`)
+    );
   }
 }
