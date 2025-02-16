@@ -105,6 +105,8 @@ const Container = styled.div`
   border-radius: 12px;
   background: rgba(60, 60, 60, 0.6);
   backdrop-filter: blur(6px);
+
+  overflow-y: scroll;
 `;
 
 const InputBox = styled.div`
