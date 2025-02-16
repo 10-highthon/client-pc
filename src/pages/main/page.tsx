@@ -7,6 +7,7 @@ import SearchModal from "../../components/SearchModal";
 const Main = () => {
   const [isShowQR, setIsShowQR] = useState(false);
   const [isShowSearch, setIsShowSearch] = useState(false);
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const [getUserInfo, setGetUserInfo] = useState<any>();
   const [info, setInfo] = useState([]);
 
