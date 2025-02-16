@@ -2,9 +2,11 @@ import styled from "styled-components";
 import Card from "../../components/Card";
 import { useEffect, useState } from "react";
 import QRModal from "../../components/QRModal";
+import SearchModal from "../../components/SearchModal";
 
 const Main = () => {
   const [isShowQR, setIsShowQR] = useState(false);
+  const [isShowSearch, setIsShowSearch] = useState(false);
   const [getUserInfo, setGetUserInfo] = useState<any>();
   const [info, setInfo] = useState([]);
 
@@ -28,7 +30,7 @@ const Main = () => {
           <Button onClick={() => setIsShowQR(true)}>
             <img src="/public/qr.svg" />
           </Button>
-          <Button>
+          <Button onClick={() => setIsShowSearch(true)}>
             <img src="/public/add.svg" />
           </Button>
           <Button>
@@ -100,6 +102,7 @@ const Main = () => {
           )}
       </Body>
       {isShowQR && <QRModal onClose={() => setIsShowQR(false)} />}
+      {isShowSearch && <SearchModal onClose={() => setIsShowSearch(false)} />}
     </Container>
   );
 };
