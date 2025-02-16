@@ -25,9 +25,6 @@ const DetailModal = (props: DetailModalProps) => {
               <p>팔로워</p>
               <p>{props.follows}</p>
             </TextWrapper>
-            <TextWrapper>
-              <p>내 포인트</p>
-            </TextWrapper>
           </Info>
           <Buttons>
             {props.time && (
@@ -37,7 +34,7 @@ const DetailModal = (props: DetailModalProps) => {
               </LiveButton>
             )}
             <RemoveButton onClick={props.onRemove}>
-              <svg href="/public/remove.svg" />
+              <img src="/remove.svg" width={18} height={18} />
             </RemoveButton>
           </Buttons>
         </Content>
@@ -146,6 +143,10 @@ const LiveButton = styled.div`
   background: rgba(114, 115, 123, 0.4);
   color: #00ffa3;
 
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 110%; /* 16.096px */
+
   font-weight: 600;
 `;
 
@@ -154,6 +155,7 @@ const RemoveButton = styled.div`
   display: flex;
   padding: 6px 9px;
   align-items: center;
+  justify-content: center;
   gap: 3px;
   border-radius: 6px;
   background: rgba(114, 115, 123, 0.4);

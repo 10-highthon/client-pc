@@ -58,7 +58,7 @@ ipcMain.on("getStream", async (_, channelId) => {
 
   const isStream = (await getFavorites(channelId)).openLive;
   if (isStream) {
-    store.set(`auto_start.${channelId}.status`, true);
+    store.set(`autoStart.${channelId}.status`, true);
     await getLiveDetail(channelId).then((res) => {
       if (res.videoUrl) PIPWindow.getInstance(channelId, res.videoUrl);
     });

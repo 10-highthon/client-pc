@@ -19,9 +19,43 @@ const Main = () => {
   }
 
   useEffect(() => {
+    const getStream = setInterval(async () => {
+      const autoStart = await window.store.get("autoStart");
+
+      const channels: {
+        channelId: string;
+      }[] = (await window.ipcRenderer.sendSync("getChannelInfo")).flat();
+
+      for (const channel of channels) {
+        console.log(autoStart[channel.channelId]);
+        if (
+          autoStart[channel.channelId].enabled &&
+          !autoStart[channel.channelId].closed &&
+          !autoStart[channel.channelId].status
+        ) {
+          window.ipcRenderer.send("getStream", channel.channelId);
+          test().then(setInfo);
+        } else if (
+          autoStart[channel.channelId].closed &&
+          !autoStart[channel.channelId].status
+        ) {
+          window.ipcRenderer.send("isStreamOff", channel.channelId);
+        } else if (!autoStart[channel.channelId].status) {
+          window.ipcRenderer.send("isSpaceOff", channel.channelId);
+        }
+      }
+    }, 5000);
+
+    return () => {
+      clearInterval(getStream);
+    };
+  });
+
+  useEffect(() => {
     test().then(setInfo);
     test2().then((res) => setGetUserInfo(res[0]));
   }, []);
+
   return (
     <Container>
       <Header>
@@ -33,7 +67,7 @@ const Main = () => {
           <Button onClick={() => setIsShowSearch(true)}>
             <img src="/public/add.svg" />
           </Button>
-          <Button>
+          <Button onClick={() => location.reload()}>
             <img src="/public/refresh.svg" />
           </Button>
           <Divider>

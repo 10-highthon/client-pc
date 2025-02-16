@@ -59,7 +59,7 @@ app.whenReady().then(async () => {
   const autoStart: StoreOptions["autoStart"] = {};
   for (const { channel } of channels) {
     autoStart[channel.channelId] = {
-      enabled: false,
+      enabled: true,
       closed: false,
       status: false,
     };
