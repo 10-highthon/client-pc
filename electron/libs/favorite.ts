@@ -60,6 +60,20 @@ interface LiveDetailsResponse {
   channels: LiveDetailResponse[];
 }
 
+interface SearchResponse {
+  channels: ChannelResponse[];
+}
+
+export const searchChannels = async (query: string) => {
+  const { data } = await axiosInstance.get<SearchResponse>("/favorite/search", {
+    params: {
+      query,
+    },
+  });
+
+  return data;
+};
+
 export const getFavorites = async (channelId: string) => {
   const { data } = await axiosInstance.get<ChannelResponse>("/favorite", {
     params: {

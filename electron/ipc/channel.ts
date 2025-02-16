@@ -1,10 +1,26 @@
 import { ipcMain, IpcMainEvent } from "electron";
-import { getFavorites, getFavoritesAll, getLiveDetail } from "../libs/favorite";
+import {
+  addFavorite,
+  getFavorites,
+  getFavoritesAll,
+  getLiveDetail,
+  searchChannels,
+} from "../libs/favorite";
 import Store from "electron-store";
 import { StoreOptions } from "../options/options";
 import { PIPWindow } from "../windows/PIPWindow";
 
 const store = new Store<StoreOptions>();
+
+ipcMain.on("addFavorite", async (_, channelId: string) => {
+  await addFavorite(channelId);
+  return;
+});
+
+ipcMain.on("searchChannels", async (event: IpcMainEvent, query: string) => {
+  const channels = await searchChannels(query);
+  event.reply("searchChannels", channels);
+});
 
 ipcMain.on("getChannelInfo", async (event: IpcMainEvent) => {
   const favorites = await getFavoritesAll();
