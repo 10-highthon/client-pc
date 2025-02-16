@@ -1,5 +1,6 @@
 import styled from "styled-components";
 import BaseModal from "./BaseModal";
+import { timeAgo } from "../utils/date";
 
 interface DetailModalProps {
   name: string;
@@ -31,7 +32,8 @@ const DetailModal = (props: DetailModalProps) => {
           <Buttons>
             {props.time && (
               <LiveButton>
-                {props.time}부터 방송 중 <img src="/public/shortcut.svg" />
+                {timeAgo(props.time)}부터 방송 중{" "}
+                <img src="/public/shortcut.svg" />
               </LiveButton>
             )}
             <RemoveButton onClick={props.onRemove}>

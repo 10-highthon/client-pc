@@ -1,6 +1,7 @@
 import { useState } from "react";
 import styled, { css } from "styled-components";
 import DetailModal from "./DetailModal";
+import { timeAgo } from "../utils/date";
 
 interface CardProps {
   channelId: string;
@@ -32,12 +33,12 @@ const Card = (props: CardProps) => {
         <Details>
           {props.$status === "OPEN" ? (
             <ActiveTextCard>
-              <p>{props.time}부터 방송 중!</p>
+              <p>{timeAgo(props.time)}부터 방송 중!</p>
             </ActiveTextCard>
           ) : (
             <TextCard>
               <p>최근 방송</p>
-              <p>{props.time}</p>
+              <p>{timeAgo(props.time)}</p>
             </TextCard>
           )}
           <TextCard>

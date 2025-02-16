@@ -94,7 +94,7 @@ const Main = () => {
                 name={v.displayName}
                 $status={v.isStream ? "OPEN" : "CLOSED"}
                 follows={v.follows}
-                time={"15시간 전"}
+                time={v.isStream ? v.startDate : v.lastStreamDate}
                 imageUrl={v.profile}
                 defaultThumbnailImageUrl={v.thumbnail}
               />
