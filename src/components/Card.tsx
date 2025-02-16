@@ -59,12 +59,12 @@ const Card = (props: CardProps) => {
       )}
       {isModalOpen && (
         <DetailModal
+          id={props.channelId}
           name={props.name}
           follows={props.follows}
           time={props.$status === "OPEN" ? props.time : undefined}
           defaultThumbnailImageUrl={props.defaultThumbnailImageUrl}
           onClose={() => setIsModalOpen(false)}
-          onRemove={() => {}}
         />
       )}
     </Container>

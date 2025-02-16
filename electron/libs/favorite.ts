@@ -113,5 +113,5 @@ export const addFavorite = async (channelId: string) => {
 };
 
 export const removeFavorite = async (channelId: string) => {
-  await axiosInstance.put("/favorite/remove", { channelId });
+  await axiosInstance.post("/favorite/remove", { channelIds: [channelId] });
 };

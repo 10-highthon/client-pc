@@ -3,11 +3,11 @@ import BaseModal from "./BaseModal";
 import { timeAgo } from "../utils/date";
 
 interface DetailModalProps {
+  id: string;
   name: string;
   follows: number;
   time?: string;
   defaultThumbnailImageUrl: string;
-  onRemove: () => void;
   onClose: () => void;
 }
 
@@ -28,12 +28,24 @@ const DetailModal = (props: DetailModalProps) => {
           </Info>
           <Buttons>
             {props.time && (
-              <LiveButton>
+              <LiveButton
+                onClick={() =>
+                  window.open(
+                    `https://chzzk.naver.com/live/${props.id}`,
+                    "_blank"
+                  )
+                }
+              >
                 {timeAgo(props.time)}부터 방송 중{" "}
                 <img src="/public/shortcut.svg" />
               </LiveButton>
             )}
-            <RemoveButton onClick={props.onRemove}>
+            <RemoveButton
+              onClick={() => {
+                window.ipcRenderer.sendSync("removeFavorite", props.id);
+                location.reload();
+              }}
+            >
               <img src="/remove.svg" width={18} height={18} />
             </RemoveButton>
           </Buttons>
@@ -142,6 +154,7 @@ const LiveButton = styled.div`
   border-radius: 6px;
   background: rgba(114, 115, 123, 0.4);
   color: #00ffa3;
+  cursor: pointer;
 
   font-size: 12px;
   font-weight: 600;
@@ -160,6 +173,7 @@ const RemoveButton = styled.div`
   border-radius: 6px;
   background: rgba(114, 115, 123, 0.4);
   color: #ff0000;
+  cursor: pointer;
 
   svg {
     width: 100%;

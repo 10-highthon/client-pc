@@ -4,6 +4,7 @@ import {
   getFavorites,
   getFavoritesAll,
   getLiveDetail,
+  removeFavorite,
   searchChannels,
 } from "../libs/favorite";
 import Store from "electron-store";
@@ -14,6 +15,11 @@ const store = new Store<StoreOptions>();
 
 ipcMain.on("addFavorite", async (_, channelId: string) => {
   await addFavorite(channelId);
+  return;
+});
+
+ipcMain.on("removeFavorite", async (_, channelId: string) => {
+  await removeFavorite(channelId);
   return;
 });
 
